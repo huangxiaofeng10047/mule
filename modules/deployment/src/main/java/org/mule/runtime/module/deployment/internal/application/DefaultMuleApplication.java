@@ -11,6 +11,10 @@ import static org.mule.runtime.core.config.bootstrap.ArtifactType.APP;
 import static org.mule.runtime.core.config.i18n.MessageFactory.createStaticMessage;
 import static org.mule.runtime.core.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.core.util.SplashScreen.miniSplash;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.MuleException;
 import org.mule.runtime.core.api.config.ConfigurationBuilder;
@@ -36,6 +40,7 @@ import org.mule.runtime.module.deployment.api.application.Application;
 import org.mule.runtime.module.deployment.api.application.ApplicationStatus;
 import org.mule.runtime.module.deployment.api.domain.Domain;
 import org.mule.runtime.module.deployment.internal.MuleDeploymentService;
+import org.mule.runtime.module.deployment.internal.artifact.ArtifactContext;
 import org.mule.runtime.module.deployment.internal.artifact.ArtifactMuleContextBuilder;
 import org.mule.runtime.module.deployment.internal.artifact.MuleContextDeploymentListener;
 import org.mule.runtime.module.deployment.internal.descriptor.ApplicationDescriptor;
@@ -59,21 +64,24 @@ public class DefaultMuleApplication implements Application {
   private final DomainRepository domainRepository;
   private final List<ArtifactPlugin> artifactPlugins;
   private final ServiceRepository serviceRepository;
+  private final File location;
   private ApplicationStatus status;
 
   protected MuleContext muleContext;
   protected ArtifactClassLoader deploymentClassLoader;
   protected DeploymentListener deploymentListener;
   private ServerNotificationListener<MuleContextNotification> statusListener;
+  private ArtifactContext artifactContext;
 
   public DefaultMuleApplication(ApplicationDescriptor descriptor, MuleDeployableArtifactClassLoader deploymentClassLoader,
                                 List<ArtifactPlugin> artifactPlugins, DomainRepository domainRepository,
-                                ServiceRepository serviceRepository) {
+                                ServiceRepository serviceRepository, File location) {
     this.descriptor = descriptor;
     this.domainRepository = domainRepository;
     this.serviceRepository = serviceRepository;
     this.deploymentListener = new NullDeploymentListener();
     this.artifactPlugins = artifactPlugins;
+    this.location = location;
     updateStatusFor(NotInLifecyclePhase.PHASE_NAME);
     if (deploymentClassLoader == null) {
       throw new IllegalArgumentException("Classloader cannot be null");
@@ -149,6 +157,10 @@ public class DefaultMuleApplication implements Application {
 
   @Override
   public void init() {
+    doInit(false);
+  }
+
+  private void doInit(boolean lazy) {
     if (logger.isInfoEnabled()) {
       logger.info(miniSplash(format("Initializing app '%s'", descriptor.getName())));
     }
@@ -156,10 +168,10 @@ public class DefaultMuleApplication implements Application {
     try {
       ArtifactMuleContextBuilder artifactBuilder =
           new ArtifactMuleContextBuilder().setArtifactProperties(descriptor.getAppProperties()).setArtifactType(APP)
-              .setArtifactInstallationDirectory(new File(MuleContainerBootstrapUtils.getMuleAppsDir(), getArtifactName()))
+              .setArtifactInstallationDirectory(descriptor.getArtifactLocation()) //TODO consolidate getArtifactLocation with getRoot
               .setConfigurationFiles(descriptor.getAbsoluteResourcePaths()).setDefaultEncoding(descriptor.getEncoding())
               .setArtifactPlugins(artifactPlugins).setExecutionClassloader(deploymentClassLoader.getClassLoader())
-              .setServiceRepository(serviceRepository);
+              .setEnableLazyInit(lazy).setServiceRepository(serviceRepository);
 
       Domain domain = domainRepository.getDomain(descriptor.getDomain());
       if (domain.getMuleContext() != null) {
@@ -168,7 +180,8 @@ public class DefaultMuleApplication implements Application {
       if (deploymentListener != null) {
         artifactBuilder.setMuleContextListener(new MuleContextDeploymentListener(getArtifactName(), deploymentListener));
       }
-      setMuleContext(artifactBuilder.build());
+      artifactContext = artifactBuilder.build();
+      setMuleContext(artifactContext.getMuleContext());
     } catch (Exception e) {
       setStatusToFailed();
 
@@ -176,6 +189,11 @@ public class DefaultMuleApplication implements Application {
       logger.error(null, ExceptionUtils.getRootCause(e));
       throw new DeploymentInitException(createStaticMessage(ExceptionUtils.getRootCauseMessage(e)), e);
     }
+  }
+
+  @Override
+  public void lazyInit() {
+    doInit(true);
   }
 
   protected void setMuleContext(final MuleContext muleContext) throws NotificationException {
@@ -223,6 +241,26 @@ public class DefaultMuleApplication implements Application {
   @Override
   public MuleContext getMuleContext() {
     return muleContext;
+  }
+
+  @Override
+  public File getLocation() {
+    return location;
+  }
+
+  @Override
+  public ConnectionValidationResult verifyConnectivity(String componentName) {
+    return artifactContext.getMuleArtifactContext().verifyConnectivity(componentName);
+  }
+
+  @Override
+  public MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName) {
+    return artifactContext.getMuleArtifactContext().retrieveMetadataKeys(componentName);
+  }
+
+  @Override
+  public MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key) {
+    return artifactContext.getMuleArtifactContext().retrieveMetadata(componentName, key);
   }
 
   @Override

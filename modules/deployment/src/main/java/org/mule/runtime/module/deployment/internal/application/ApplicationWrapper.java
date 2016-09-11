@@ -6,12 +6,17 @@
  */
 package org.mule.runtime.module.deployment.internal.application;
 
-import org.mule.runtime.module.deployment.api.application.ApplicationStatus;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.module.deployment.api.application.Application;
+import org.mule.runtime.module.deployment.api.application.ApplicationStatus;
 import org.mule.runtime.module.deployment.internal.artifact.DeployableArtifactWrapper;
 import org.mule.runtime.module.deployment.internal.descriptor.ApplicationDescriptor;
 import org.mule.runtime.module.deployment.api.domain.Domain;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -19,7 +24,8 @@ import java.io.IOException;
  * may load custom classes for an application, which must be executed with deployment (app) classloader in the context, and not
  * Mule system classloader.
  */
-public class ApplicationWrapper extends DeployableArtifactWrapper<Application, ApplicationDescriptor> implements Application {
+public class ApplicationWrapper extends DeployableArtifactWrapper<Application, ApplicationDescriptor>
+    implements Application {
 
   protected ApplicationWrapper(Application delegate) throws IOException {
     super(delegate);
@@ -47,4 +53,25 @@ public class ApplicationWrapper extends DeployableArtifactWrapper<Application, A
   public Application getDelegate() {
     return super.getDelegate();
   }
+
+  @Override
+  public File getLocation() {
+    return getDelegate().getLocation();
+  }
+
+  @Override
+  public ConnectionValidationResult verifyConnectivity(String componentName) {
+    return getDelegate().verifyConnectivity(componentName);
+  }
+
+  @Override
+  public MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName) {
+    return getDelegate().retrieveMetadataKeys(componentName);
+  }
+
+  @Override
+  public MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key) {
+    return getDelegate().retrieveMetadata(componentName, key);
+  }
+
 }

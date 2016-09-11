@@ -4,10 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.runtime.module.tooling.api.artifact;
+package org.mule.runtime.module.deployment.internal.connectivity.artifact;
 
 import org.mule.runtime.config.spring.dsl.api.config.ArtifactConfiguration;
-import org.mule.runtime.module.tooling.api.connectivity.ConnectivityTestingStrategy;
+import org.mule.runtime.core.api.connectivity.ConnectivityTestingStrategy;
 
 import java.io.File;
 

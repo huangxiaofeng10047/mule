@@ -668,4 +668,17 @@ public class ApplicationModel {
     return muleComponentModels.get(0);
   }
 
+  public Optional<ComponentModel> findNamedComponent(String name) {
+    Optional<ComponentModel> requestedComponentModelOptional = empty();
+    for (ComponentModel muleComponentModel : muleComponentModels) {
+      requestedComponentModelOptional = muleComponentModel.getInnerComponents().stream()
+          .filter(componentModel -> name.equals(componentModel.getNameAttribute()))
+          .findAny();
+      if (requestedComponentModelOptional.isPresent()) {
+        break;
+      }
+    }
+    return requestedComponentModelOptional;
+  }
+
 }

@@ -6,6 +6,10 @@
  */
 package org.mule.runtime.module.deployment.internal.domain;
 
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.module.deployment.api.DeploymentStartException;
 import org.mule.runtime.module.deployment.api.InstallException;
@@ -36,6 +40,28 @@ public class TestDomainWrapper implements Domain {
   }
 
   @Override
+  public File getLocation() {
+    return null;
+  }
+
+  @Override
+  public ConnectionValidationResult verifyConnectivity(String componentName) {
+    return delegate.verifyConnectivity(componentName);
+  }
+
+  @Override
+  public MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName) {
+
+    return null;
+  }
+
+  @Override
+  public MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key) {
+
+    return null;
+  }
+
+  @Override
   public void install() throws InstallException {
     delegate.install();
   }
@@ -43,6 +69,11 @@ public class TestDomainWrapper implements Domain {
   @Override
   public void init() {
     delegate.init();
+  }
+
+  @Override
+  public void lazyInit() {
+
   }
 
   @Override

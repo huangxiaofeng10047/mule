@@ -7,6 +7,10 @@
 package org.mule.runtime.module.deployment.internal.artifact;
 
 import static org.mule.runtime.core.util.ClassUtils.withContextClassLoader;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.module.deployment.api.DeploymentStartException;
 import org.mule.runtime.module.deployment.api.InstallException;
@@ -43,8 +47,35 @@ public class DeployableArtifactWrapper<T extends DeployableArtifact<D>, D extend
     return delegate.getMuleContext();
   }
 
+  @Override
+  public File getLocation() {
+    return delegate.getLocation();
+  }
+
+  @Override
+  public ConnectionValidationResult verifyConnectivity(String componentName) {
+    return null;
+  }
+
+  @Override
+  public MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName) {
+
+    return null;
+  }
+
+  @Override
+  public MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key) {
+
+    return null;
+  }
+
   public void init() {
     executeWithinArtifactClassLoader(delegate::init);
+  }
+
+  @Override
+  public void lazyInit() {
+    getDelegate().lazyInit();
   }
 
   public void install() throws InstallException {

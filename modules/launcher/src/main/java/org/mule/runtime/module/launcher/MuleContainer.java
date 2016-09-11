@@ -105,7 +105,8 @@ public class MuleContainer {
     this.repositoryService = new RepositoryServiceFactory().createRepositoryService();
 
     this.toolingService =
-        new DefaultToolingService(repositoryService, new DefaultTemporaryArtifactBuilderFactory(artifactResourcesRegistry));
+        new DefaultToolingService(artifactResourcesRegistry, repositoryService,
+                                  new DefaultTemporaryArtifactBuilderFactory(artifactResourcesRegistry));
     this.coreExtensionManager = new DefaultMuleCoreExtensionManagerServer(
                                                                           new ClasspathMuleCoreExtensionDiscoverer(artifactResourcesRegistry
                                                                               .getContainerClassLoader()),

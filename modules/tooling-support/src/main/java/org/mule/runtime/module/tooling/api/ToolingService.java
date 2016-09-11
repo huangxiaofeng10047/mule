@@ -7,6 +7,7 @@
 package org.mule.runtime.module.tooling.api;
 
 import org.mule.runtime.module.tooling.api.connectivity.ConnectivityTestingServiceBuilder;
+import org.mule.runtime.module.tooling.internal.artifact.ToolingArtifactBuilder;
 
 /**
  * Set of services used by tooling to exercise some mule configuration like doing connectivity testing.
@@ -20,5 +21,9 @@ public interface ToolingService {
    * @return a builder to create a {@link org.mule.runtime.module.tooling.api.connectivity.ConnectivityTestingService}
    */
   ConnectivityTestingServiceBuilder newConnectivityTestingServiceBuilder();
+
+  ToolingArtifactBuilder newToolingApplicationArtifactBuilder();
+
+
 
 }

@@ -17,6 +17,7 @@ import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.size.SmallTest;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Rule;
@@ -32,7 +33,7 @@ public class EmptyApplicationDescriptorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void defaultValuesAreCorrect() throws IOException {
-    EmptyApplicationDescriptor applicationDescriptor = new EmptyApplicationDescriptor(APP_NAME);
+    EmptyApplicationDescriptor applicationDescriptor = new EmptyApplicationDescriptor(new File(APP_NAME));
     assertThat(applicationDescriptor.getName(), is(APP_NAME));
     assertThat(applicationDescriptor.getConfigResources()[0], is(MuleServer.DEFAULT_CONFIGURATION));
     String absolutePathForConfigResource = MuleContainerBootstrapUtils.getMuleAppDefaultConfigFile(APP_NAME).getAbsolutePath();

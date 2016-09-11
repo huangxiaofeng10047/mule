@@ -12,8 +12,13 @@ import org.mule.runtime.api.connection.ConnectionExceptionCode;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.MuleRuntimeException;
+import org.mule.runtime.core.api.context.MuleContextAware;
+import org.mule.runtime.core.config.i18n.CoreMessages;
+import org.mule.runtime.extension.api.runtime.ConfigurationInstance;
+import org.mule.runtime.extension.api.runtime.ConfigurationProvider;
 import org.mule.runtime.module.extension.internal.runtime.resolver.ConnectionProviderResolver;
-import org.mule.runtime.module.tooling.api.connectivity.ConnectivityTestingStrategy;
+import org.mule.runtime.core.api.connectivity.ConnectivityTestingStrategy;
 
 import javax.inject.Inject;
 
@@ -23,7 +28,8 @@ import javax.inject.Inject;
  *
  * @since 4.0
  */
-public class ExtensionConnectivityTestingStrategy implements ConnectivityTestingStrategy {
+//TODO this should not be mule context aware. This should probably be a kind of registry bootstrap so it's goes through the usual classloading cycle of mule
+public class ExtensionConnectivityTestingStrategy implements ConnectivityTestingStrategy, MuleContextAware {
 
   @Inject
   private MuleContext muleContext;
@@ -42,7 +48,7 @@ public class ExtensionConnectivityTestingStrategy implements ConnectivityTesting
    */
   public ExtensionConnectivityTestingStrategy() {}
 
-  void setMuleContext(MuleContext muleContext) {
+  public void setMuleContext(MuleContext muleContext) {
     this.muleContext = muleContext;
   }
 
@@ -50,15 +56,31 @@ public class ExtensionConnectivityTestingStrategy implements ConnectivityTesting
    * {@inheritDoc}
    */
   @Override
-  public ConnectionValidationResult testConnectivity(Object connectivityTestingObject) {
+  public ConnectionValidationResult validateConnectivity(Object connectivityTestingObject) {
     try {
-      ConnectionProvider connectionProvider =
-          ((ConnectionProviderResolver) connectivityTestingObject).resolve(getInitialiserEvent(muleContext));
-      Object connection = connectionProvider.connect();
-      return connectionProvider.validate(connection);
+      if (connectivityTestingObject instanceof ConnectionProviderResolver) {
+        ConnectionProvider connectionProvider =
+            ((ConnectionProviderResolver) connectivityTestingObject).resolve(getInitialiserEvent(muleContext));
+        return validateConnectionOverConnectionProvider(connectionProvider);
+      } else {
+        ConfigurationProvider configurationProvider = (ConfigurationProvider) connectivityTestingObject;
+        ConfigurationInstance configurationInstance = configurationProvider.get(getInitialiserEvent(muleContext));
+        configurationInstance.getConnectionProvider();
+        if (configurationInstance.getConnectionProvider().isPresent()) {
+          return validateConnectionOverConnectionProvider(configurationInstance.getConnectionProvider().get());
+        } else {
+          throw new MuleRuntimeException(CoreMessages.createStaticMessage("The component does not support connectivity testing"));
+        }
+      }
     } catch (Exception e) {
       return failure(e.getMessage(), ConnectionExceptionCode.UNKNOWN, e);
     }
+  }
+
+  private ConnectionValidationResult validateConnectionOverConnectionProvider(ConnectionProvider connectionProvider)
+      throws org.mule.runtime.api.connection.ConnectionException {
+    Object connection = connectionProvider.connect();
+    return connectionProvider.validate(connection);
   }
 
   /**
@@ -66,7 +88,8 @@ public class ExtensionConnectivityTestingStrategy implements ConnectivityTesting
    */
   @Override
   public boolean accepts(Object connectivityTestingObject) {
-    return connectivityTestingObject instanceof ConnectionProviderResolver;
+    return connectivityTestingObject instanceof ConnectionProviderResolver
+        || connectivityTestingObject instanceof ConfigurationProvider;
   }
 
 }

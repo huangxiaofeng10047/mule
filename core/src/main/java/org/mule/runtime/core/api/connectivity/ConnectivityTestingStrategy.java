@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.runtime.module.tooling.api.connectivity;
+package org.mule.runtime.core.api.connectivity;
 
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 
@@ -21,12 +21,12 @@ import org.mule.runtime.api.connection.ConnectionValidationResult;
 public interface ConnectivityTestingStrategy {
 
   /**
-   * Does test connectivity over the provided mule component.
+   * Does connectivity validation over the provided mule component.
    *
    * @return a {@code ConnectionValidationResult} describing the test connectivity result.
    * @param connectivityTestingObject object over the one connectivity testing must be done
    */
-  ConnectionValidationResult testConnectivity(Object connectivityTestingObject);
+  ConnectionValidationResult validateConnectivity(Object connectivityTestingObject);
 
   /**
    * Determines if this {@code ConnectivityTestingStrategy} must be applied over the provided object.

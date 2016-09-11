@@ -14,5 +14,5 @@ import java.io.IOException;
  */
 public interface DescriptorParser<D extends DeployableArtifactDescriptor> {
 
-  D parse(File descriptor, String artifactName) throws IOException;
+  D parse(File artifactLocation, File descriptor, String artifactName) throws IOException;
 }

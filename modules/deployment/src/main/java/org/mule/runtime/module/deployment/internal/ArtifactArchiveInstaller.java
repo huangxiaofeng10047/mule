@@ -46,7 +46,7 @@ public class ArtifactArchiveInstaller {
    * @return the name of the installed artifact.
    * @throws IOException in case there was an error reading from the artifact or writing to the artifact folder.
    */
-  public String installArtifact(final URL artifactUrl) throws IOException {
+  public File installArtifact(final URL artifactUrl) throws IOException {
     if (!artifactUrl.toString().endsWith(".zip")) {
       throw new IllegalArgumentException("Invalid Mule artifact archive: " + artifactUrl);
     }
@@ -94,7 +94,7 @@ public class ArtifactArchiveInstaller {
         FileUtils.deleteTree(artifactDir);
       }
     }
-    return artifactName;
+    return artifactDir;
   }
 
   /**

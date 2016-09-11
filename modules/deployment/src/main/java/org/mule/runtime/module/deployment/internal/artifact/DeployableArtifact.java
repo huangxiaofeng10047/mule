@@ -7,11 +7,17 @@
 
 package org.mule.runtime.module.deployment.internal.artifact;
 
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.module.deployment.api.DeploymentStartException;
 import org.mule.runtime.module.deployment.api.InstallException;
 import org.mule.runtime.module.deployment.internal.descriptor.DeployableArtifactDescriptor;
 import org.mule.runtime.module.artifact.Artifact;
+
+import java.io.File;
 
 /**
  * An Artifact is an abstract representation of a deployable unit within the mule container.
@@ -29,6 +35,11 @@ public interface DeployableArtifact<D extends DeployableArtifactDescriptor> exte
    * Initialise the artifact resources
    */
   void init();
+
+  /**
+   * Initialise the minimal resources required for this artifact to execute components
+   */
+  void lazyInit();
 
   /**
    * Starts the artifact execution
@@ -49,4 +60,13 @@ public interface DeployableArtifact<D extends DeployableArtifactDescriptor> exte
    * @return MuleContext created from the artifact configurations files.
    */
   MuleContext getMuleContext();
+
+  File getLocation();
+
+  ConnectionValidationResult verifyConnectivity(String componentName);
+
+  MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName);
+
+  MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key);
+
 }

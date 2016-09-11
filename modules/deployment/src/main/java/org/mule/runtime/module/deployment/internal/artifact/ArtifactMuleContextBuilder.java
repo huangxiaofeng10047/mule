@@ -68,6 +68,7 @@ public class ArtifactMuleContextBuilder {
   private MuleContextListener muleContextListener;
   private String defaultEncoding;
   private ServiceRepository serviceRepository = Collections::emptyList;
+  private boolean enableLazyInit;
 
   /**
    * The {@code ArtifactType} defines the set of services that will be available in the {@code MuleContext}. For instance
@@ -208,12 +209,17 @@ public class ArtifactMuleContextBuilder {
     return this;
   }
 
+  public ArtifactMuleContextBuilder setEnableLazyInit(boolean enableLazyInit) {
+    this.enableLazyInit = enableLazyInit;
+    return this;
+  }
+
   /**
    * @return the {@code MuleContext} created with the provided configuration
    * @throws ConfigurationException when there's a problem creating the {@code MuleContext}
    * @throws InitialisationException when a certain configuration component failed during initialisation phase
    */
-  public MuleContext build() throws InitialisationException, ConfigurationException {
+  public ArtifactContext build() throws InitialisationException, ConfigurationException {
     checkState(executionClassLoader != null, EXECUTION_CLASSLOADER_WAS_NOT_SET);
     checkState(APP.equals(artifactType) || parentContext == null, ONLY_APPLICATIONS_ARE_ALLOWED_TO_HAVE_A_PARENT_CONTEXT);
     try {
@@ -222,7 +228,8 @@ public class ArtifactMuleContextBuilder {
         builders.add(new ApplicationExtensionsManagerConfigurationBuilder(artifactPlugins));
         builders.add(createConfigurationBuilderFromApplicationProperties());
         SpringXmlConfigurationBuilder mainBuilder =
-            new SpringXmlConfigurationBuilder(configurationFiles, artifactConfiguration, artifactProperties, artifactType);
+            new SpringXmlConfigurationBuilder(configurationFiles, artifactConfiguration, artifactProperties, artifactType,
+                                              enableLazyInit);
         mainBuilder.addServiceConfigurator(new ContainerServicesMuleContextConfigurator(serviceRepository));
         if (parentContext != null) {
           mainBuilder.setParentContext(parentContext);
@@ -239,7 +246,8 @@ public class ArtifactMuleContextBuilder {
         }
         muleContextBuilder.setExecutionClassLoader(this.executionClassLoader);
         try {
-          return muleContextFactory.createMuleContext(builders, muleContextBuilder);
+          MuleContext muleContext = muleContextFactory.createMuleContext(builders, muleContextBuilder);
+          return new ArtifactContext(muleContext, mainBuilder.getMuleArtifactContext());
         } catch (InitialisationException e) {
           throw new ConfigurationException(e);
         }

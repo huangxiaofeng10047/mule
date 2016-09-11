@@ -24,6 +24,7 @@ import org.mule.tck.junit4.AbstractMuleContextTestCase;
 import org.mule.tck.probe.JUnitProbe;
 import org.mule.tck.probe.PollingProber;
 
+import java.io.File;
 import java.util.Collections;
 
 import org.junit.Test;
@@ -38,13 +39,14 @@ public class DefaultMuleApplicationStatusTestCase extends AbstractMuleContextTes
   private static final int PROBER_INTERVAL = 100;
 
   private DefaultMuleApplication application;
+  private File appLocation = new File("fakeLocation");
 
   @Override
   protected void doSetUp() throws Exception {
     MuleApplicationClassLoader parentArtifactClassLoader = mock(MuleApplicationClassLoader.class);
     application =
         new DefaultMuleApplication(null, parentArtifactClassLoader, Collections.emptyList(), null,
-                                   mock(ServiceRepository.class));
+                                   mock(ServiceRepository.class), appLocation);
     application.setMuleContext(muleContext);
   }
 
@@ -87,7 +89,7 @@ public class DefaultMuleApplicationStatusTestCase extends AbstractMuleContextTes
 
     DefaultMuleApplication application =
         new DefaultMuleApplication(descriptor, mock(MuleApplicationClassLoader.class), Collections.emptyList(), null,
-                                   null);
+                                   null, appLocation);
     application.install();
     assertThat(application.deploymentClassLoader, is(notNullValue()));
     application.dispose();

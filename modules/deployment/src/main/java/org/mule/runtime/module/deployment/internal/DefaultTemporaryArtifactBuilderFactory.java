@@ -18,12 +18,12 @@ import org.mule.runtime.module.deployment.internal.application.ArtifactPlugin;
 import org.mule.runtime.module.deployment.internal.application.DefaultArtifactPlugin;
 import org.mule.runtime.module.deployment.internal.artifact.ArtifactMuleContextBuilder;
 import org.mule.runtime.module.artifact.classloader.MuleDeployableArtifactClassLoader;
+import org.mule.runtime.module.deployment.internal.connectivity.artifact.TemporaryArtifact;
+import org.mule.runtime.module.deployment.internal.connectivity.artifact.TemporaryArtifactBuilder;
+import org.mule.runtime.module.deployment.internal.connectivity.artifact.TemporaryArtifactBuilderFactory;
 import org.mule.runtime.module.deployment.internal.plugin.ArtifactPluginDescriptor;
 import org.mule.runtime.module.reboot.MuleContainerBootstrapUtils;
-import org.mule.runtime.module.tooling.api.artifact.TemporaryArtifact;
-import org.mule.runtime.module.tooling.api.artifact.TemporaryArtifactBuilderFactory;
-import org.mule.runtime.module.tooling.api.artifact.TemporaryArtifactBuilder;
-import org.mule.runtime.module.tooling.api.connectivity.ConnectivityTestingStrategy;
+import org.mule.runtime.core.api.connectivity.ConnectivityTestingStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,7 +142,7 @@ public class DefaultTemporaryArtifactBuilderFactory implements TemporaryArtifact
 
             @Override
             public void start() throws MuleException {
-              this.muleContext = artifactMuleContextBuilder.build();
+              this.muleContext = artifactMuleContextBuilder.build().getMuleContext();
               muleContext.start();
             }
 

@@ -43,8 +43,8 @@ public class ComponentModel {
 
   private boolean root = false;
   private ComponentIdentifier identifier;
-  private Map<String, Object> customAttributes = new HashMap<>();
   private Map<String, String> parameters = new HashMap<>();
+  private Map<String, Object> customAttributes = new HashMap<>();
   private Set<String> schemaValueParameter = new HashSet<>();
   // TODO MULE-9638 This must go away from component model once it's immutable.
   private ComponentModel parent;

@@ -22,7 +22,7 @@ public class TestApplicationWrapper extends ApplicationWrapper {
 
   private boolean failOnDisposeApplication;
 
-  protected TestApplicationWrapper(Application delegate) throws IOException {
+  protected TestApplicationWrapper(DevelopmentApplication delegate) throws IOException {
     super(delegate);
   }
 

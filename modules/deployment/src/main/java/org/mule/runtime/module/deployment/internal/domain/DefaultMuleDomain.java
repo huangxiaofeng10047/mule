@@ -9,6 +9,10 @@ package org.mule.runtime.module.deployment.internal.domain;
 import static org.mule.runtime.core.config.bootstrap.ArtifactType.DOMAIN;
 import static org.mule.runtime.core.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.core.util.SplashScreen.miniSplash;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.metadata.MetadataKeysContainer;
+import org.mule.runtime.api.metadata.descriptor.TypeMetadataDescriptor;
+import org.mule.runtime.api.metadata.resolving.MetadataResult;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.MuleException;
 import org.mule.runtime.core.api.MuleRuntimeException;
@@ -84,6 +88,28 @@ public class DefaultMuleDomain implements Domain {
   }
 
   @Override
+  public File getLocation() {
+    return null;
+  }
+
+  @Override
+  public ConnectionValidationResult verifyConnectivity(String componentName) {
+    return null;
+  }
+
+  @Override
+  public MetadataResult<MetadataKeysContainer> retrieveMetadataKeys(String componentName) {
+
+    return null;
+  }
+
+  @Override
+  public MetadataResult<TypeMetadataDescriptor> retrieveMetadata(String componentName, String key) {
+
+    return null;
+  }
+
+  @Override
   public void install() {
     if (logger.isInfoEnabled()) {
       logger.info(miniSplash(String.format("New domain '%s'", getArtifactName())));
@@ -110,13 +136,18 @@ public class DefaultMuleDomain implements Domain {
         if (deploymentListener != null) {
           artifactBuilder.setMuleContextListener(new MuleContextDeploymentListener(getArtifactName(), deploymentListener));
         }
-        muleContext = artifactBuilder.build();
+        muleContext = artifactBuilder.build().getMuleContext();
       }
     } catch (Exception e) {
       // log it here so it ends up in app log, sys log will only log a message without stacktrace
       logger.error(null, ExceptionUtils.getRootCause(e));
       throw new DeploymentInitException(CoreMessages.createStaticMessage(ExceptionUtils.getRootCauseMessage(e)), e);
     }
+  }
+
+  @Override
+  public void lazyInit() {
+    //TODO implement
   }
 
   private void validateConfigurationFileDoNotUsesCoreNamespace() throws FileNotFoundException {
