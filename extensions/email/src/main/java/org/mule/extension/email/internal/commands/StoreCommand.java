@@ -12,7 +12,7 @@ import static javax.mail.Folder.READ_ONLY;
 import static org.mule.runtime.core.util.FileUtils.write;
 import org.mule.extension.email.internal.retriever.RetrieverConnection;
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.extension.email.api.exception.EmailRetrieverException;
+import org.mule.extension.email.api.exception.EmailRetrieveException;
 import org.mule.runtime.api.message.MuleMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -75,7 +75,7 @@ public final class StoreCommand {
           writeContent(message, emailFile);
         }
       } catch (MessagingException | IOException me) {
-        throw new EmailRetrieverException(me);
+        throw new EmailRetrieveException(me);
       }
     });
 

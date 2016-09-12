@@ -8,7 +8,7 @@ package org.mule.extension.email.internal.retriever;
 
 import static org.mule.extension.email.internal.util.EmailConnectorUtils.INBOX_FOLDER;
 
-import org.mule.extension.email.api.EmailAttributes;
+import org.mule.extension.email.api.ReceivedEmailAttributes;
 import org.mule.extension.email.api.EmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.DeleteCommand;
 import org.mule.extension.email.internal.commands.ListCommand;
@@ -45,7 +45,8 @@ public class RetrieverOperations {
    */
   // TODO: ADD PAGINATION SUPPORT WHEN AVAILABLE
   @Summary("List all the emails in the given Mailbox Folder")
-  public List<MuleMessage> list(@UseConfig RetrieverConfiguration config, @Connection RetrieverConnection connection,
+  public List<MuleMessage> list(@UseConfig RetrieverConfiguration config,
+                                @Connection RetrieverConnection connection,
                                 @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder,
                                 @Optional EmailPredicateBuilder matcher) {
     return listCommand.list(connection, mailboxFolder, config.isEagerlyFetchContent(), buildMatcher(matcher));
@@ -81,7 +82,7 @@ public class RetrieverOperations {
     storeCommand.store(connection, muleMessage, mailboxFolder, localDirectory, fileName, emailId, overwrite);
   }
 
-  private Predicate<EmailAttributes> buildMatcher(EmailPredicateBuilder matcher) {
+  private Predicate<ReceivedEmailAttributes> buildMatcher(EmailPredicateBuilder matcher) {
     return matcher != null ? matcher.build() : attributes -> true;
   }
 

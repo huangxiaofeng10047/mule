@@ -9,7 +9,6 @@ package org.mule.extension.email;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.email.api.EmailContentProcessor.process;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
@@ -18,7 +17,7 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTA
 import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentContent;
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
-
+import org.mule.extension.email.api.EmailContentProcessor;
 import org.mule.runtime.api.message.MuleMessage;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 
@@ -33,21 +32,21 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   @Test
   public void emailTextBodyFromMultipart() throws Exception {
     Message message = getMultipartTestMessage();
-    String messageBody = process(message).getBody();
+    String messageBody = EmailContentProcessor.getInstance(message).getBody();
     assertThat(messageBody, is(EMAIL_CONTENT));
   }
 
   @Test
   public void emailTextBodyFromSinglePart() throws Exception {
     Message message = getSinglePartTestMessage();
-    String messageBody = process(message).getBody();
+    String messageBody = EmailContentProcessor.getInstance(message).getBody();
     assertThat(messageBody, is(EMAIL_CONTENT));
   }
 
   @Test
   public void emailAttachmentsFromMultipart() throws Exception {
     Message message = getMultipartTestMessage();
-    List<MuleMessage> attachments = process(message).getAttachments();
+    List<MuleMessage> attachments = EmailContentProcessor.getInstance(message).getAttachments();
     assertThat(attachments, hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);

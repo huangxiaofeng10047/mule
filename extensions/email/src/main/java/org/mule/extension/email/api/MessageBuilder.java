@@ -220,7 +220,7 @@ public final class MessageBuilder {
    * @return this {@link MessageBuilder}
    * @throws MessagingException
    */
-  public MessageBuilder withContent(String content, MediaType contentType, String charset) throws MessagingException {
+  public MessageBuilder withBody(String content, MediaType contentType, String charset) throws MessagingException {
     this.content = content;
     this.contentType = contentType;
     this.charset = charset;
@@ -234,7 +234,7 @@ public final class MessageBuilder {
    * @return this {@link MessageBuilder}
    * @throws MessagingException
    */
-  public MessageBuilder withContent(String content) throws MessagingException {
+  public MessageBuilder withBody(String content) throws MessagingException {
     this.content = content;
     this.contentType = TEXT;
     return this;

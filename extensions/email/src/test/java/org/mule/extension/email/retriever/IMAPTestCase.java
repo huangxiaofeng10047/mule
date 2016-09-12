@@ -20,7 +20,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.runners.Parameterized.Parameters;
 import static org.mule.extension.email.internal.commands.EmailIdConsumerExecutor.NO_ID_ERROR;
-import org.mule.extension.email.api.EmailAttributes;
+import org.mule.extension.email.api.ReceivedEmailAttributes;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.functional.junit4.runners.RunnerDelegateTo;
 import org.mule.runtime.api.message.MuleMessage;
@@ -70,7 +70,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(messages, hasSize(10));
     messages.forEach(m -> {
       assertBodyContent(m.getPayload());
-      assertThat(((EmailAttributes) m.getAttributes()).getFlags().isSeen(), is(true));
+      assertThat(((ReceivedEmailAttributes) m.getAttributes()).getFlags().isSeen(), is(true));
     });
   }
 
@@ -78,7 +78,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   public void retrieveAndDontRead() throws Exception {
     List<MuleMessage> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
     assertThat(messages, hasSize(10));
-    messages.forEach(m -> assertThat(((EmailAttributes) m.getAttributes()).getFlags().isSeen(), is(false)));
+    messages.forEach(m -> assertThat(((ReceivedEmailAttributes) m.getAttributes()).getFlags().isSeen(), is(false)));
   }
 
   @Test
